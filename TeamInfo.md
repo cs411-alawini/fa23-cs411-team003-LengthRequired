@@ -25,4 +25,7 @@
 
 ## Project Summary
 
-This is a summary of the project!
+The Olympics Gateway web application is designed to be a comprehensive and interactive hub for all things related to the 2021 Tokyo Olympic Games. The app provides statistics such as medal counts and detailed information about various disciplines, countries, and athletes.
+
+The app has a system for rating and comment. Users can rate and comment on athletes, countries, disciplines, and even coaches, allowing for a diverse range of perspectives and opinions. The app also features a user account system for registration and login. Users can log in to access their past comments and ratings.
+
