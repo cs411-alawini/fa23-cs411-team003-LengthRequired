@@ -56,7 +56,7 @@ def get_rating():
     data = retrieve_data(command)
 
     # Use name and type to get desired info from data
-    rating = None
+    rating = 0
 
     return jsonify(rating)
 
