@@ -16,7 +16,6 @@ function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     
-    // Check if email or password fields are blank
     if (!email.trim() || !password.trim()) {
       alert('Please enter both email and password.');
       return;
