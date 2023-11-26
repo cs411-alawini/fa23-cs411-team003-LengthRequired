@@ -31,27 +31,6 @@ def home():
     return 'Hello, World!'
 
 
-# Define a JSON API endpoint
-@app.route('/api/rating', methods=['GET'])
-def get_rating():
-    # Establish a connection to the database
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor()
-
-    ratee_data = request.get_json()
-    name = ratee_data['name']
-    type = ratee_data['type']
-
-    # Get corresponding table
-    command = ""
-    data = retrieve_data(command)
-
-    # Use name and type to get desired info from data
-    rating = 0
-
-    return jsonify(rating)
-
-
 @app.route('/api/registration', methods=['POST'])
 def register():
     try:
@@ -137,7 +116,7 @@ def query_table():
         if not table_name: return {"error": "table not specified"}
         if filters:
             filters = dict(item.split(":") for item in filters[1:-1].split(","))
-            filter_conditions = " AND ".join([f"'{key}'= '{value}'" for key, value in filters.items()])
+            filter_conditions = " AND ".join([f"{key}= '{value}'" for key, value in filters.items()])
             query += f" WHERE {filter_conditions}"
 
         if order_by and order:
