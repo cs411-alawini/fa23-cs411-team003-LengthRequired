@@ -69,6 +69,16 @@ def register():
 
 @app.route('/api/login', methods=['POST'])
 def login():
+    """
+    If login successfully:
+    {
+        
+    }
+    
+    
+    
+    
+    """
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
@@ -79,17 +89,19 @@ def login():
 
         # Validate whether the email exists
         cursor.execute("SELECT * FROM User WHERE Email = %s", (email,))
-        user = cursor.rowcount
+        user = cursor.fetchone()
 
-        if user == 0:
-            response = {"message": "Invalid email or password."}
+        if not user:
+            response = {"message": "Invalid email or password"}
         else:
             # Check if the password is correct
-            stored_password = user[1]
+            stored_password = user[1]  # Assuming the password is stored in the second column
             if password == stored_password:
-                response = {"message": "Login successful!"}
+                # If the password is correct, include the username in the response
+                username = user[2]  # Assuming the username is stored in the third column
+                response = {"message": "Login successful", "username": username}
             else:
-                response = {"message": "Invalid email or password."}
+                response = {"message": "Invalid email or password"}
 
         return jsonify(response)
 
@@ -105,6 +117,19 @@ def login():
 # /filter?table=athlete&order_by=C&order=desc&filters={Country:China,Name:A}
 @app.route('/api/filter', methods=['GET'])
 def query_table():
+    """
+    {
+        "data": [
+        {
+            "AthleteId": 91,
+            "Country": "Poland",
+            "Discipline": "Athletics",
+            "Name": "ADAMEK Klaudia",
+            "RateeId": 90
+        }]
+    }
+
+    """
     try:
         conn = mysql.connector.connect(**db_config)
         table_name = request.args.get('table')
@@ -146,6 +171,42 @@ def get_leaderboard():
 # /ratee?rateeid=3
 @app.route('/api/ratee', methods=['GET'])
 def get_ratee_info():
+    """
+    {
+        "data": {
+            "AthleteId": 4,
+            "Comments": [
+                {
+                    "CommentId": 0,
+                    "Content": "test",
+                    "PostBy": "123@123",
+                    "Target": 3,
+                    "Time": "Sat, 25 Nov 2023 18:16:52 GMT"
+                },
+                {
+                    "CommentId": 0,
+                    "Content": "test",
+                    "PostBy": "123@123",
+                    "Target": 3,
+                    "Time": "Sat, 25 Nov 2023 18:19:54 GMT"
+                },
+                {
+                    "CommentId": 0,
+                    "Content": "bad player",
+                    "PostBy": "123@123",
+                    "Target": 3,
+                    "Time": "Sat, 25 Nov 2023 18:59:24 GMT"
+                }
+            ],
+            "Country": "Spain",
+            "Discipline": "Basketball",
+            "Name": "ABALDE Alberto",
+            "RateeId": 3,
+            "Rating": 0,
+            "Type": "Athlete"
+        }
+    }
+    """
     try:
         conn = mysql.connector.connect(**db_config)
 
@@ -235,7 +296,20 @@ def post_rate():
 
 # /discipline?discipline=Tennis
 @app.route('/api/discipline', methods=['GET'])
-def get_by_discipline():
+def get_athlete_by_discipline():
+    """
+    {
+        "data": [
+        {
+            "AthleteId": 91,
+            "Country": "Poland",
+            "Discipline": "Athletics",
+            "Name": "ADAMEK Klaudia",
+            "RateeId": 90
+        }]
+    }
+
+    """
     try:
         conn = mysql.connector.connect(**db_config)
 
@@ -253,7 +327,21 @@ def get_by_discipline():
 
 # /country?country=Poland
 @app.route('/api/country', methods=['GET'])
-def get_by_country():
+def get_athlete_by_country():
+    """
+    {
+        "data": [
+        {
+            "AthleteId": 91,
+            "Country": "Poland",
+            "Discipline": "Athletics",
+            "Name": "ADAMEK Klaudia",
+            "RateeId": 90
+        }]
+    }
+    
+
+    """
     try:
         conn = mysql.connector.connect(**db_config)
 
