@@ -72,12 +72,14 @@ def login():
     """
     If login successfully:
     {
-        
+        "message": "Login successful", 
+        "username": username
     }
-    
-    
-    
-    
+
+    else:
+    {
+        "message": "Invalid email or password"
+    }
     """
     try:
         conn = mysql.connector.connect(**db_config)
@@ -360,6 +362,39 @@ def get_athlete_by_country():
 # just call it
 @app.route('/api/fun-facts', methods=['GET'])
 def fun_facts():
+    """
+    {
+    "data": [
+        [
+            {
+                "Discipline": "Water Polo",
+                "PlayerToCoachRatio": "12.1818"
+            },
+            {
+                "Discipline": "Rugby Sevens",
+                "PlayerToCoachRatio": "11.8800"
+            },
+            {
+                "Discipline": "Handball",
+                "PlayerToCoachRatio": "11.5862"
+            }
+        ],
+        [
+            {
+                "Athlete_to_Medal_Ratio": "45510.0256",
+                "Country": "United States of America",
+                "Number_of_Athletes": 615,
+                "Total_medals": "69495"
+            },
+            {
+                "Athlete_to_Medal_Ratio": "20050.0263",
+                "Country": "People's Republic of China",
+                "Number_of_Athletes": 401,
+                "Total_medals": "35288"
+            }
+        ]
+    }
+    """
     try:
         conn = mysql.connector.connect(**db_config)
         query1 = ("SELECT Discipline, TotalPlayerCount/CountNum AS PlayerToCoachRatio FROM Discipline NATURAL JOIN ("
