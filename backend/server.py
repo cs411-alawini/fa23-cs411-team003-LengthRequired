@@ -404,10 +404,10 @@ def fun_facts():
         cursor.execute(query1)
         res1 = [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]
 
-        query2 = ("SELECT A.Country, COUNT(A.AthleteId) AS Number_of_Athletes, C.Gold + C.Silver + C.Bronze AS "
-                  "Total_medals, COUNT(A.AthleteId) / (C.Gold + C.Silver + C.Bronze) AS Athlete_to_Medal_Ratio FROM "
-                  "Athlete A JOIN Country C ON A.Country = C.Country GROUP BY A.Country ORDER BY "
-                  "Athlete_to_Medal_Ratio DESC LIMIT 15;")
+        query2 = ("SELECT A.Country, COUNT(A.AthleteId) AS Number_of_Athletes, SUM(C.Gold) + SUM(C.Silver) + SUM("
+                  "C.Bronze) AS Total_medals, COUNT(A.AthleteId) / SUM(C.Gold) + SUM(C.Silver) + SUM(C.Bronze) AS "
+                  "Athlete_to_Medal_Ratio FROM Athlete A JOIN Country C ON A.Country = C.Country GROUP BY A.Country "
+                  "ORDER BY Athlete_to_Medal_Ratio DESC LIMIT 15;")
         cursor = conn.cursor()
         cursor.execute(query2)
         res2 = [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]
