@@ -269,5 +269,29 @@ def get_by_country():
         return {"error": str(e)}
 
 
+# just call it
+@app.route('/api/fun-facts', methods=['GET'])
+def fun_facts():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        query1 = ("SELECT Discipline, TotalPlayerCount/CountNum AS PlayerToCoachRatio FROM Discipline NATURAL JOIN ("
+                  "SELECT COUNT(CoachID) AS CountNum, Discipline FROM Coach GROUP BY Discipline) AS CoachCount ORDER "
+                  "BY PlayerToCoachRatio DESC LIMIT 15;")
+        cursor = conn.cursor()
+        cursor.execute(query1)
+        res1 = [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]
+
+        query2 = ("SELECT A.Country, COUNT(A.AthleteId) AS Number_of_Athletes, C.Gold + C.Silver + C.Bronze AS "
+                  "Total_medals, COUNT(A.AthleteId) / (C.Gold + C.Silver + C.Bronze) AS Athlete_to_Medal_Ratio FROM "
+                  "Athlete A JOIN Country C ON A.Country = C.Country GROUP BY A.Country ORDER BY "
+                  "Athlete_to_Medal_Ratio DESC LIMIT 15;")
+        cursor = conn.cursor()
+        cursor.execute(query2)
+        res2 = [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]
+        return {'data': [res1, res2]}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080)
