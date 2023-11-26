@@ -1,17 +1,10 @@
-import requests
-import time
-import os
-import io
-import warnings
-import threading
-import subprocess
 import pickle
-from helper import retrieve_data
-from flask import Flask, request, jsonify, make_response, Response
-from flask_cors import CORS, cross_origin
+from datetime import datetime
+
 import mysql.connector
+from flask import Flask, request, jsonify
 
-
+from helper import retrieve_data
 
 pickle_file_path = 'config.pickle'
 
@@ -25,40 +18,17 @@ HOST = loaded_dict["host"]
 
 app = Flask(__name__)
 
-
 db_config = {
     "user": USER,
     "password": PASSWORD,
     "host": HOST,
-    "database": "db",
+    "database": "test",
 }
-
 
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
     return 'Hello, World!'
-
-
-# Define a JSON API endpoint
-@app.route('/api/rating', methods=['GET'])
-def get_rating():
-    # Establish a connection to the database
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor()
-
-    ratee_data = request.get_json()
-    name = ratee_data['name']
-    type = ratee_data['type']
-
-    # Get corresponding table
-    command = ""
-    data = retrieve_data(command)
-
-    # Use name and type to get desired info from data
-    rating = 0
-
-    return jsonify(rating)
 
 
 @app.route('/api/registration', methods=['POST'])
@@ -74,7 +44,7 @@ def register():
 
         # Validate whether email is already existed
         cursor.execute("SELECT * FROM User WHERE Email = %s", (email,))
-        existing_user = cursor.fetchone()
+        existing_user = cursor.rowcount
 
         if existing_user:
             response = {"message": "User with this email already exists."}
@@ -97,7 +67,6 @@ def register():
         conn.close()
 
 
-
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
@@ -110,9 +79,9 @@ def login():
 
         # Validate whether the email exists
         cursor.execute("SELECT * FROM User WHERE Email = %s", (email,))
-        user = cursor.fetchone()
+        user = cursor.rowcount
 
-        if not user:
+        if user == 0:
             response = {"message": "Invalid email or password."}
         else:
             # Check if the password is correct
@@ -133,37 +102,196 @@ def login():
         conn.close()
 
 
-@app.route('/api/table', methods=['GET'])
+# /filter?table=athlete&order_by=C&order=desc&filters={Country:China,Name:A}
+@app.route('/api/filter', methods=['GET'])
 def query_table():
-    filters = request.get_json()
+    try:
+        conn = mysql.connector.connect(**db_config)
+        table_name = request.args.get('table')
+        order_by = request.args.get('order_by')
+        order = request.args.get('order')
+        filters = request.args.get('filters')
 
-    #Get table infor based on filters
+        query = f"SELECT * FROM {table_name}"
+        if not table_name: return {"error": "table not specified"}
+        if filters:
+            filters = dict(item.split(":") for item in filters[1:-1].split(","))
+            filter_conditions = " AND ".join([f"{key}= '{value}'" for key, value in filters.items()])
+            query += f" WHERE {filter_conditions}"
 
+        if order_by and order:
+            query += f" ORDER BY {order_by} {order}"
+        cursor = conn.cursor()
+        cursor.execute(query)
 
+        return {'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]}
+    except Exception as e:
+        return {"error": str(e)}
 
 
 @app.route('/api/leaderboard', methods=['GET'])
 def get_leaderboard():
-    data = request.get_json()
+    try:
+        conn = mysql.connector.connect(**db_config)
 
-    # Get country information with count of metals and orders
+        query = ""
+        cursor = conn.cursor()
+        cursor.execute(query)
+
+        return {'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]}
+    except Exception as e:
+        return {"error": str(e)}
 
 
+# /ratee?rateeid=3
 @app.route('/api/ratee', methods=['GET'])
 def get_ratee_info():
-    data = request.get_json()
-    name = data["name"]
-    type = data["type"]
+    try:
+        conn = mysql.connector.connect(**db_config)
 
+        rateeid = request.args.get('rateeid')
+        if not rateeid: return {"error": "rateeid not specified"}
+
+        cursor = conn.cursor()
+        query = f"SELECT * FROM Ratee WHERE Rateeid = '{rateeid}' LIMIT 1"
+        cursor.execute(query)
+
+        ratee_info = cursor.fetchall()[0]
+        if not ratee_info: return {"error": "ratee not found"}
+        type = ratee_info[1]
+        rating = ratee_info[2] / ratee_info[3] if ratee_info[3] else 0
+        rating_info = {"Type": type, "Rating": rating}
+
+        query = f"SELECT * FROM {type} WHERE Rateeid = '{rateeid}' LIMIT 1"
+        cursor.execute(query)
+        other_info = dict(zip(cursor.column_names, cursor.fetchall()[0]))
+
+        query = f"SELECT * FROM Comment WHERE Target = '{rateeid}'"
+        cursor.execute(query)
+        comments = {"Comments": [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]}
+
+        return {'data': {**rating_info, **other_info, **comments}}
+
+    except Exception as e:
+        return {"error": str(e)}
     # Get ratee information
 
 
+# {"content":"test","email":"123@123","target":3}
 @app.route('/api/comment', methods=['POST'])
 def post_comment():
-    data = request.get_json()
-    content = data["content"]
-    email = data["email"]
+    try:
+
+        conn = mysql.connector.connect(**db_config)
+
+        data = request.get_json()
+        content = data["content"]
+        email = data["email"]
+        target = data["target"]
+
+        conn.start_transaction()
+        cursor = conn.cursor()
+        query = (f"INSERT INTO Comment (Content, Time, PostBy, Target) VALUES ('{content}', "
+                 f"'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{email}', {target})")
+        cursor.execute(query)
+        res = cursor.rowcount
+        conn.commit()
+
+        return jsonify({"message": "Comment posted"}) if res else jsonify({"message": "Invalid comment"})
+
+
+    except Exception as e:
+        response = {"error": str(e)}
+        if conn: conn.rollback()
+        return jsonify(response)
+
+
+# {"rate_by":"test","rating_value":"3","target":3}
+@app.route('/api/rates', methods=['POST'])
+def post_rate():
+    try:
+        conn = mysql.connector.connect(**db_config)
+
+        data = request.get_json()
+        rate_by = data["rate_by"]
+        target = data["target"]
+        rating_value = data["rating_value"]
+
+        conn.start_transaction()
+        cursor = conn.cursor()
+        query = (f"INSERT INTO Rates (RateBy, Target, RatingValue, Time) VALUES ('{rate_by}', "
+                 f"{target}, {rating_value}, '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}')")
+        cursor.execute(query)
+        res = cursor.rowcount
+        conn.commit()
+
+        return jsonify({"message": "Rating posted"}) if res else jsonify({"message": "Invalid rating"})
+
+    except Exception as e:
+        response = {"error": str(e)}
+        if conn: conn.rollback()
+        return jsonify(response)
+
+
+# /discipline?discipline=Tennis
+@app.route('/api/discipline', methods=['GET'])
+def get_by_discipline():
+    try:
+        conn = mysql.connector.connect(**db_config)
+
+        discipline = request.args.get('discipline')
+        if not discipline: return {"error": "discipline not specified"}
+
+        cursor = conn.cursor()
+        query = f"SELECT * FROM Athlete WHERE Discipline = '{discipline}'"
+        cursor.execute(query)
+        return {'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# /country?country=Poland
+@app.route('/api/country', methods=['GET'])
+def get_by_country():
+    try:
+        conn = mysql.connector.connect(**db_config)
+
+        country = request.args.get('country')
+        if not country: return {"error": "country not specified"}
+
+        cursor = conn.cursor()
+        query = f"SELECT * FROM Athlete WHERE Country = '{country}'"
+        cursor.execute(query)
+        return {'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# just call it
+@app.route('/api/fun-facts', methods=['GET'])
+def fun_facts():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        query1 = ("SELECT Discipline, TotalPlayerCount/CountNum AS PlayerToCoachRatio FROM Discipline NATURAL JOIN ("
+                  "SELECT COUNT(CoachID) AS CountNum, Discipline FROM Coach GROUP BY Discipline) AS CoachCount ORDER "
+                  "BY PlayerToCoachRatio DESC LIMIT 15;")
+        cursor = conn.cursor()
+        cursor.execute(query1)
+        res1 = [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]
+
+        query2 = ("SELECT A.Country, COUNT(A.AthleteId) AS Number_of_Athletes, C.Gold + C.Silver + C.Bronze AS "
+                  "Total_medals, COUNT(A.AthleteId) / (C.Gold + C.Silver + C.Bronze) AS Athlete_to_Medal_Ratio FROM "
+                  "Athlete A JOIN Country C ON A.Country = C.Country GROUP BY A.Country ORDER BY "
+                  "Athlete_to_Medal_Ratio DESC LIMIT 15;")
+        cursor = conn.cursor()
+        cursor.execute(query2)
+        res2 = [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]
+        return {'data': [res1, res2]}
+    except Exception as e:
+        return {"error": str(e)}
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0', port=8080)
