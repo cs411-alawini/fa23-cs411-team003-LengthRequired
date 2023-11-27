@@ -1,24 +1,18 @@
 // App.js
 import React from 'react';
-import SearchBar from './SearchBar';
-import './App.css';
-import Login from './Login';
-import SignUp from './Signup';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './Pages/HomePage';
+import LoginPage from './Pages/LoginPage';
+import { UserProvider } from './Components/UserProvider'; // Adjust the path as necessary
 
 function App() {
-  const handleSearchSubmit = (searchTerm) => {
-    console.log('Search submitted:', searchTerm);
-    // You can add more logic here to handle the search term
-  };
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <SignUp />
-        <Login />
-        {/* <SearchBar onSearchSubmit={handleSearchSubmit} /> */}
-      </header>
-    </div>
+      <UserProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<HomePage />} />
+        </Routes>
+      </UserProvider>
   );
 }
 
