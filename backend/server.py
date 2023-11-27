@@ -357,6 +357,40 @@ def get_athlete_by_country():
 
     except Exception as e:
         return {"error": str(e)}
+    
+@app.route('/api/medal', methods=['GET'])
+def get_medal():
+    """
+    {
+        "data": [
+        {
+            "Bronze": 33,
+            "Country": "United States of America",
+            "Gold": 39,
+            "Ranks": 1,
+            "Silver": 41
+        },
+        {
+            "Bronze": 18,
+            "Country": "People's Republic of China",
+            "Gold": 38,
+            "Ranks": 2,
+            "Silver": 32
+        }]
+    }
+    
+
+    """
+    try:
+        conn = mysql.connector.connect(**db_config)
+
+        cursor = conn.cursor()
+        query = f"SELECT * FROM Country c ORDER BY c.Ranks"
+        cursor.execute(query)
+        return {'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]}
+
+    except Exception as e:
+        return {"error": str(e)}
 
 
 # just call it
