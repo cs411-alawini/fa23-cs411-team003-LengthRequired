@@ -2,37 +2,47 @@ import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { UserContext } from '../Components/UserProvider';
 import { useNavigate } from 'react-router-dom';
-import SearchBar from "../Components/SearchBar";
-import RadialSelector from '../Components/RadialSelector';
 import useAuthRedirect from "../Hooks/useAuthRedirect";
+import UserProfile from '../Components/UserProfile';
+import InputSubmit from "../Components/InputSubmit";
+import RadialSelector from '../Components/RadialSelector';
+import RateeCard from '../Components/RateeCard';
+
+
 
 function HomePage() {
-    const { user } = useContext(UserContext);
-    useAuthRedirect(user.username);
-    const tables = ['athlete', 'coach', 'team', 'country', 'discipline'];
-    const countries = ['Japan','China'];
+    const tables = ['athlete', 'coach', 'team'];
+    const countries = ['All','Japan','China'];
+    const orderByAttributes = ['Country', 'Name', 'Discipline'];
 
     const [country, setCountry] = useState(countries[0]);
     const [table, setTable] = useState(tables[0]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
+    const [name, setName] = useState('');
+    const [order, setOrder] = useState('Descending');
+    const [orderBy, setOrderBy] = useState(orderByAttributes[0]);
+    const [searchResults, setSearchResults] = useState([
+        { Name: 'Hammer Wang', Country: 'China', Discipline: 'Basketball', RateeId: 1},
+        { Name: 'Husky Li', Country: 'Japan', Discipline: 'Football', RateeId: 2},
+        { Name: 'Zhang The Third', Country: 'Korea', Discipline: 'Tennis', RateeId: 3}
+    ]);
 
     // whenever table or searchTerm changes, submit the search
     React.useEffect(() => {
-        if (searchTerm.trim() === '') { return; }
-        console.log('Search submitted:', searchTerm, 'in', table);
+        console.log('Search submitted:', name, 'in', table);
         fetchSearchResults();
-    }, [table, searchTerm, country]);
+    }, [table, name, country, order, orderBy]);
 
     const fetchSearchResults = async () => {
-        const baseUrl = 'localhost/api/filter';
-        const orderBy = 'C';
-        const order = 'desc';
-        const filters = { Country: country, Name: searchTerm };
+        const baseUrl = 'localhost:8080/api/filter';
+        const queryOrderBy = orderBy;
+        const queryOrder = order === 'Ascending' ? 'asc' : 'desc';
+        const queryCountry = country === 'All' ? '' : country;
+        const queryName = name;
+        const filters = { Country: queryCountry, Name: queryName };
         const filtersJson = JSON.stringify(filters);
 
         // Construct the full URL
-        const url = `${baseUrl}?table=${table}&order_by=${orderBy}&order=${order}&filters=${filtersJson}`;
+        const url = `${baseUrl}?table=${table}&order_by=${queryOrderBy}&order=${queryOrder}&filters=${filtersJson}`;
     
         console.log('Fetching search results from:', url);
         try {
@@ -46,9 +56,38 @@ function HomePage() {
 
     return (
         <div>
-            <SearchBar onSearchSubmit={setSearchTerm} />
-            <RadialSelector options={tables} onOptionSelected={setTable} />
-            <RadialSelector options={countries} onOptionSelected={setCountry} />
+            <h1>Home Page</h1>
+            <UserProfile />
+            <InputSubmit onSubmit={setName} />
+            <div className='SelectorDiv'>
+                <p>Order Results:</p>
+                <RadialSelector options={['Ascending', 'Descending']} onOptionSelected={setOrder} />
+            </div>
+            <div className='SelectorDiv'>
+                <p>Order By:</p>
+                <RadialSelector options={orderByAttributes} onOptionSelected={setOrderBy} />
+            </div>
+            <div className='SelectorDiv'>
+                <p>Table:</p>
+                <RadialSelector options={tables} onOptionSelected={setTable} />
+            </div>
+            <div className='SelectorDiv'>
+                <p>Country:</p>
+                <RadialSelector options={countries} onOptionSelected={setCountry} />
+            </div>
+            <div>
+                <h1>Search Results</h1>
+                <div className='SearchResults'>
+                    {searchResults.map((result) => (
+                        <RateeCard
+                            RateeId = {result.RateeId}
+                            Name={result.Name}
+                            Country={result.Country}
+                            Discipline={result.Discipline}
+                        />
+                    ))}
+                </div>
+            </div>
         </div>
     );
 }

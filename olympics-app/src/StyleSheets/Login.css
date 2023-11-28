@@ -5,10 +5,13 @@
     overflow: hidden;
 }
 .title {
-    margin-top: 10%;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Roboto', sans-serif;
+    font-size: 5rem;
     color: azure;
-    font-size: 5em;
-    font-weight: 700;
 }
 
 .background-img {

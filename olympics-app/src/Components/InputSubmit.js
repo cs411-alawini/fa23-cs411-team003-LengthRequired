@@ -1,19 +1,16 @@
 import React from 'react';
 
-function SearchBar({ onSearchSubmit }) {
+function InputSubmit({ onSubmit }) {
   let searchTerm = '';
 
   const handleInputChange = (event) => {
     searchTerm = event.target.value;
-    if (onSearchSubmit) {
-      onSearchSubmit(searchTerm);
-    }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (onSearchSubmit) {
-      onSearchSubmit(searchTerm);
+    if (onSubmit) {
+      onSubmit(searchTerm);
     }
   };
 
@@ -24,9 +21,9 @@ function SearchBar({ onSearchSubmit }) {
         placeholder="Search..."
         onChange={handleInputChange}
       />
-      <button type="submit">Search</button>
+      <button type="submit">Submit</button>
     </form>
   );
 }
 
-export default SearchBar;
+export default InputSubmit;
