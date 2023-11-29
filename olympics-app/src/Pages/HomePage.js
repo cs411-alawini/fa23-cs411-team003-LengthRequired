@@ -11,20 +11,21 @@ import RateeCard from '../Components/RateeCard';
 
 
 function HomePage() {
-    const tables = ['athlete', 'coach', 'team'];
+    const tables = ['Athlete', 'Coach', 'Team'];
     const countries = ['All','Japan','China'];
     const orderByAttributes = ['Country', 'Name', 'Discipline'];
 
-    const [country, setCountry] = useState(countries[0]);
+    const [country, setCountry] = useState('');
     const [table, setTable] = useState(tables[0]);
     const [name, setName] = useState('');
-    const [order, setOrder] = useState('Descending');
-    const [orderBy, setOrderBy] = useState(orderByAttributes[0]);
-    const [searchResults, setSearchResults] = useState([
-        { Name: 'Hammer Wang', Country: 'China', Discipline: 'Basketball', RateeId: 1},
-        { Name: 'Husky Li', Country: 'Japan', Discipline: 'Football', RateeId: 2},
-        { Name: 'Zhang The Third', Country: 'Korea', Discipline: 'Tennis', RateeId: 3}
-    ]);
+    const [order, setOrder] = useState('');
+    const [orderBy, setOrderBy] = useState('');
+    // const [searchResults, setSearchResults] = useState([
+    //     { Name: 'Hammer Wang', Country: 'China', Discipline: 'Basketball', RateeId: 1},
+    //     { Name: 'Husky Li', Country: 'Japan', Discipline: 'Football', RateeId: 2},
+    //     { Name: 'Zhang The Third', Country: 'Korea', Discipline: 'Tennis', RateeId: 3}
+    // ]);
+    const [searchResults, setSearchResults] = useState([]);
 
     // whenever table or searchTerm changes, submit the search
     React.useEffect(() => {
@@ -33,26 +34,74 @@ function HomePage() {
     }, [table, name, country, order, orderBy]);
 
     const fetchSearchResults = async () => {
-        const baseUrl = 'localhost:8080/api/filter';
-        const queryOrderBy = orderBy;
-        const queryOrder = order === 'Ascending' ? 'asc' : 'desc';
-        const queryCountry = country === 'All' ? '' : country;
-        const queryName = name;
-        const filters = { Country: queryCountry, Name: queryName };
-        const filtersJson = JSON.stringify(filters);
+        const baseUrl = 'http://localhost:8080/api/filter';
+        const queryOrderBy = orderBy || ''; // Default to empty string if orderBy is falsy
+        const queryOrder = order || '';
+        const queryCountry = country || '';
+        const queryName = name || '';
+    
+        // Create an object to hold the parameters
+        const queryParams = {
+            table: table,
+        };
+    
+        // Add optional parameters based on user input
+        if (queryOrder) {
+            queryParams.order = queryOrder;
+        }
+        
+        if (queryOrderBy) {
+            queryParams.order_by = queryOrderBy;
+        }
+    
+        if (queryCountry) {
+            queryParams.Country = queryCountry;
+        }
+    
+        if (queryName) {
+            queryParams.Name = queryName;
+        }
+    
+        // Add the filters parameter only if filters are provided
+        // const filters = {}
+        // if (queryCountry || queryName) {
+        //     if (queryCountry) {
+        //         filters.Country = queryCountry
+        //     }
 
-        // Construct the full URL
-        const url = `${baseUrl}?table=${table}&order_by=${queryOrderBy}&order=${queryOrder}&filters=${filtersJson}`;
+        //     if (queryName) {
+        //         filters.Name = queryName
+        //     }
+            
+        //     const filtersString = Object.keys(filters)
+        //         .map(key => `${key}:${filters[key]}`)
+        //         .join(',');
+
+        //     // Add the filters parameter to queryParams
+        //     if (filtersString) {
+        //         queryParams.filters = encodeURIComponent(`{${filtersString}}`);
+        //     }
+        // }
+    
+        // Convert the object to a URL-encoded query string
+        const queryString = new URLSearchParams(queryParams).toString();
+    
+        // Construct the full URL with the query string
+        const url = `${baseUrl}?${queryString}`;
     
         console.log('Fetching search results from:', url);
+    
         try {
             const response = await axios.get(url);
-            console.log('Server Response:', response.data);
-            setSearchResults(response.data);
+            const query_data = response.data.data
+            console.log('Server Response:', query_data);
+            // console.log('Server Response type:', typeof(response.data.data[0]));
+            setSearchResults(query_data);
         } catch (error) {
             console.error('Search Error:', error);
         }
-    }
+    };
+    
 
     return (
         <div>
@@ -61,7 +110,7 @@ function HomePage() {
             <InputSubmit onSubmit={setName} />
             <div className='SelectorDiv'>
                 <p>Order Results:</p>
-                <RadialSelector options={['Ascending', 'Descending']} onOptionSelected={setOrder} />
+                <RadialSelector options={['ASC', 'DESC']} onOptionSelected={setOrder} />
             </div>
             <div className='SelectorDiv'>
                 <p>Order By:</p>
