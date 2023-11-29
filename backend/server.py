@@ -117,7 +117,7 @@ def login():
         conn.close()
 
 
-# /filter?table=athlete&order_by=C&order=desc&filters={Country:China,Name:A}
+# /filter?table=athlete&order_by=C&order=desc&country=China&name=A}
 @app.route('/api/filter', methods=['GET'])
 def query_table():
     """
@@ -138,17 +138,27 @@ def query_table():
         table_name = request.args.get('table')
         order_by = request.args.get('order_by')
         order = request.args.get('order')
-        filters = request.args.get('filters')
+        country = request.args.get('country')
+        name = request.args.get('name')
+        filters = {}
+        if country:
+            filters['Country'] = country
+        if name:
+            filters["Name"] = name
 
+        if not table_name: 
+            return {"error": "table not specified"}
+        
         query = f"SELECT * FROM {table_name}"
-        if not table_name: return {"error": "table not specified"}
+        
         if filters:
-            filters = dict(item.split(":") for item in filters[1:-1].split(","))
+            # filters = dict(item.split(":") for item in filters[1:-1].split(","))
             filter_conditions = " AND ".join([f"{key}= '{value}'" for key, value in filters.items()])
             query += f" WHERE {filter_conditions}"
 
         if order_by and order:
             query += f" ORDER BY {order_by} {order}"
+            
         cursor = conn.cursor()
         cursor.execute(query)
 
