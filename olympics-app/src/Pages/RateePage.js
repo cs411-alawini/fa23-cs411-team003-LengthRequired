@@ -8,7 +8,7 @@ import RateeCard from '../Components/RateeCard';
 import useAuthRedirect from "../Hooks/useAuthRedirect";
 
 function RateePage() {
-    const ratingLvl = [ '1', '2', '3', '4', '5'];
+    const ratingLvl = [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
     const { user } = useContext(UserContext);
 
 
@@ -75,6 +75,7 @@ function RateePage() {
         };
       
         try {
+          console.log(ratingData.rating_value);
           const response = await axios.post('http://localhost:8080/api/rates', ratingData);
           console.log(response.data);
           // Update local state or perform other actions as needed

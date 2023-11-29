@@ -3,7 +3,7 @@ from datetime import datetime
 
 import mysql.connector
 from flask import Flask, request, jsonify
-
+from flask_cors import CORS, cross_origin
 from helper import retrieve_data
 
 pickle_file_path = 'config.pickle'
@@ -17,6 +17,7 @@ PASSWORD = loaded_dict["password"]
 HOST = loaded_dict["host"]
 
 app = Flask(__name__)
+CORS(app)
 
 db_config = {
     "user": USER,
@@ -151,9 +152,9 @@ def query_table():
         cursor = conn.cursor()
         cursor.execute(query)
 
-        return {'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]}
+        return jsonify({'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]})
     except Exception as e:
-        return {"error": str(e)}
+        return jsonify({"error": str(e)})
 
 
 @app.route('/api/leaderboard', methods=['GET'])
