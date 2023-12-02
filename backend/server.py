@@ -2,7 +2,7 @@ import pickle
 from datetime import datetime
 
 import mysql.connector
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS, cross_origin
 from helper import retrieve_data
 
@@ -32,32 +32,46 @@ def home():
     return 'Hello, World!'
 
 
-@app.route('/api/registration', methods=['POST'])
+@app.route('/api/registration', methods=['POST', 'OPTIONS'])
 def register():
+    if request.method == 'OPTIONS':
+        # Handle OPTIONS request
+        response = make_response()
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        response.status_code = 200
+        return response
+
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
-        user_data = request.get_json()
-        email = user_data["email"]
-        password = user_data["password"]
-        username = user_data["username"]
+        if request.method == 'POST':
+            user_data = request.get_json()
+            email = user_data["email"]
+            password = user_data["password"]
+            username = user_data["username"]
 
-        # Validate whether email is already existed
-        cursor.execute("SELECT * FROM User WHERE Email = %s", (email,))
-        existing_user = cursor.rowcount
+            # Validate whether email is already existed
+            cursor.execute("SELECT * FROM User WHERE Email = %s", (email,))
+            existing_user = cursor.fetchone()
 
-        if existing_user:
-            response = {"message": "User with this email already exists."}
-        else:
-            # Insert into MySQL
-            insert_query = "INSERT INTO User (Email, Password, Username) VALUES (%s, %s, %s)"
-            user_values = (email, password, username)
-            cursor.execute(insert_query, user_values)
-            conn.commit()
-            response = {"message": "User registered successfully."}
+            if existing_user:
+                response = {"message": "User with this email already exists."}
+            else:
+                # Insert into MySQL
+                insert_query = "INSERT INTO User (Email, Password, Username) VALUES (%s, %s, %s)"
+                user_values = (email, password, username)
+                cursor.execute(insert_query, user_values)
+                
+                conn.commit()
+                if cursor.rowcount > 0:
+                    response = {"message": "User registered successfully."}
+                else:
+                    response = {"message": "User registration failed."}
 
-        return jsonify(response)
+            return jsonify(response)
 
     except Exception as e:
         response = {"error": str(e)}
@@ -66,6 +80,7 @@ def register():
     finally:
         cursor.close()
         conn.close()
+
 
 
 @app.route('/api/login', methods=['POST'])
@@ -158,7 +173,7 @@ def query_table():
 
         if order_by and order:
             query += f" ORDER BY {order_by} {order}"
-            
+
         cursor = conn.cursor()
         cursor.execute(query)
 
@@ -418,7 +433,7 @@ BEGIN
 	DECLARE cur CURSOR FOR (SELECT RateeId, Name, (IFNULL(Rating/Average, 0)*0.8+CommentCount*0.2) AS Score FROM RatingComment NATURAL JOIN DisciplineAverage);
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 	DROP TEMPORARY TABLE IF EXISTS RatingComment; 
-DROP TEMPORARY TABLE IF EXISTS DisciplineAverage; 
+    DROP TEMPORARY TABLE IF EXISTS DisciplineAverage; 
 	CREATE TEMPORARY TABLE RatingComment AS
 	(SELECT RateeId, Name, CommentCount, (SumofRating/NULLIF(NumofRating, 0)) AS Rating, Discipline FROM Athlete NATURAL JOIN Ratee NATURAL JOIN (SELECT Target AS RateeId, COUNT(*) AS CommentCount FROM Comment GROUP BY Target) AS Temp);
 	CREATE TEMPORARY TABLE DisciplineAverage AS
@@ -428,21 +443,21 @@ DROP TEMPORARY TABLE IF EXISTS DisciplineAverage;
 	OPEN cur;
 		Cloop: LOOP
 		FETCH cur INTO varRateeId, varName, varScore;
-	IF done THEN
-		LEAVE cloop;
-	END IF;
+        IF done THEN
+            LEAVE cloop;
+        END IF;
 
-	IF varScore >= 5.1 THEN
-		SET varRank = 'A';
-	ELSEIF varScore >= 2.8 THEN
-		SET varRank = 'B';
-ELSE
-	SET varRank = 'C';
-END IF;
+        IF varScore >= 5.1 THEN
+            SET varRank = 'A';
+        ELSEIF varScore >= 2.8 THEN
+            SET varRank = 'B';
+        ELSE
+            SET varRank = 'C';
+        END IF;
 
-INSERT INTO FinalTable VALUE (varRateeId, varName, varRank, varScore);
-END LOOP cloop;
-CLOSE cur;
+        INSERT INTO FinalTable VALUE (varRateeId, varName, varRank, varScore);
+        END LOOP cloop;
+    CLOSE cur;
 
 	SELECT * FROM FinalTable ORDER BY PlayerRank;
 END//
@@ -453,6 +468,25 @@ DELIMITER ;
 
 @app.route('/api/player-rank', methods=['GET'])
 def player_rank():
+    """
+    "data": [
+        {
+            "Name": "ABALDE Alberto",
+            "PlayerRank": "C",
+            "RateeId": 3,
+            "Score": 0.8
+        },
+        {
+            "Name": "ABALO Luc",
+            "PlayerRank": "C",
+            "RateeId": 5,
+            "Score": 1.0
+        }]
+    
+    
+    
+    
+    """
     try:
         conn = mysql.connector.connect(**db_config)
         dict_cursor = conn.cursor(dictionary=True)
