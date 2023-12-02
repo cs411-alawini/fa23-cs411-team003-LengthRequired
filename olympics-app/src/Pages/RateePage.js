@@ -100,9 +100,9 @@ function RateePage() {
             </section>
             <section className='UserInteraction'>
                 <h2>Rate This Participant</h2>
-                <RadialSelector options={ratingLvl} onOptionSelect={handleRating} />
+                <RadialSelector options={ratingLvl} onOptionSelected={handleRating} />
                 <h2>Leave Your Comment</h2>
-                <InputSubmit onSearchSubmit={handleCommentSubmit}/>
+                <InputSubmit onSearchSubmited={handleCommentSubmit}/>
             </section>
             <section>
                 <h2>Reviews</h2>
