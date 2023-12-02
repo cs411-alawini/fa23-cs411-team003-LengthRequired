@@ -181,20 +181,6 @@ def query_table():
         return jsonify({"error": str(e)})
 
 
-@app.route('/api/leaderboard', methods=['GET'])
-def get_leaderboard():
-    try:
-        conn = mysql.connector.connect(**db_config)
-
-        query = ""
-        cursor = conn.cursor()
-        cursor.execute(query)
-
-        return {'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]}
-    except Exception as e:
-        return {"error": str(e)}
-
-
 # /ratee?rateeid=3
 @app.route('/api/ratee', methods=['GET'])
 def get_ratee_info():
