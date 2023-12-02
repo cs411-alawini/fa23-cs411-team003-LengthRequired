@@ -64,7 +64,7 @@ def register():
                 insert_query = "INSERT INTO User (Email, Password, Username) VALUES (%s, %s, %s)"
                 user_values = (email, password, username)
                 cursor.execute(insert_query, user_values)
-                
+
                 conn.commit()
                 if cursor.rowcount > 0:
                     response = {"message": "User registered successfully."}
@@ -80,7 +80,6 @@ def register():
     finally:
         cursor.close()
         conn.close()
-
 
 
 @app.route('/api/login', methods=['POST'])
@@ -161,11 +160,11 @@ def query_table():
         if name:
             filters["Name"] = name
 
-        if not table_name: 
+        if not table_name:
             return {"error": "table not specified"}
-        
+
         query = f"SELECT * FROM {table_name}"
-        
+
         if filters:
             # filters = dict(item.split(":") for item in filters[1:-1].split(","))
             filter_conditions = " AND ".join([f"{key}= '{value}'" for key, value in filters.items()])
@@ -284,10 +283,34 @@ def post_comment():
                  f"'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', '{email}', {target})")
         cursor.execute(query)
         res = cursor.rowcount
+        comment_id = cursor.lastrowid
         conn.commit()
 
-        return jsonify({"message": "Comment posted"}) if res else jsonify({"message": "Invalid comment"})
+        return jsonify({"message": "Comment posted", "CommentId": comment_id}) if res else jsonify(
+            {"message": "Invalid comment"})
 
+    except Exception as e:
+        response = {"error": str(e)}
+        if conn: conn.rollback()
+        return jsonify(response)
+
+# {"CommentId":1}
+@app.route('/api/comment', methods=['DELETE'])
+def delete_comment():
+    try:
+        conn = mysql.connector.connect(**db_config)
+
+        data = request.get_json()
+        comment_id = data["CommentId"]
+
+        conn.start_transaction()
+        cursor = conn.cursor()
+        query = f"DELETE FROM Comment WHERE CommentID = {comment_id}"
+        cursor.execute(query)
+        res = cursor.rowcount
+        conn.commit()
+
+        return jsonify({"message": "Comment deleted"}) if res else jsonify({"message": "Invalid comment ID"})
 
     except Exception as e:
         response = {"error": str(e)}
