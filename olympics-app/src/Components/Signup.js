@@ -41,13 +41,13 @@ function Signup() {
 
     try {
       // Replace with the actual URL of your sign-up API
-      const response = await axios.post('localhost:8080/api/registration', {
+      const response = await axios.post('http://localhost:8080/api/registration', {
         email,
         username,
         password
       });
       console.log('Server Response:', response.data);
-      if (response.data.message === 'User registered successfully') {
+      if (response.data.message === 'User registered successfully.') {
         setUser({ username, email }); // Update the user context
         // redirect to home page
         navigate('/');

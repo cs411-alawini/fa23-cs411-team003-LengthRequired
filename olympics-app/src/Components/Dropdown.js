@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import '../StyleSheets/Dropdown.css';
 
 const Dropdown = ({ options, onOptionSelected }) => {
   const [showDropdown, setShowDropdown] = useState(false);

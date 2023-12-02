@@ -57,33 +57,41 @@ function RateePage() {
 
     const handleCommentSubmit = async (comment) => {
         const commentData = {
-          email: user.email,
-          content: comment,
-          target: id
+            email: user.email,
+            content: comment,
+            target: id
         };
         try {
             const response = await axios.post('http://localhost:8080/api/comment', commentData);
             console.log(response.data);
-            // Update local state or perform other actions as needed
-          } catch (error) {
+            // Alert the user
+            alert('Comment posted successfully');
+            // Call fetchRatee to update the data
+            fetchRatee();
+        } catch (error) {
             console.error('Error submitting comment:', error);
-          }
+            // You can also alert the user about the error
+        }
     };
-
+    
     const handleRating = async (rating) => {
         const ratingData = {
-          rate_by: user.username,
-          rating_value: rating,
-          target: id
+            rate_by: user.username,
+            rating_value: rating,
+            target: id
         };
       
         try {
-          console.log(ratingData.rating_value);
-          const response = await axios.post('http://localhost:8080/api/rates', ratingData);
-          console.log(response.data);
-          // Update local state or perform other actions as needed
+            console.log(ratingData.rating_value);
+            const response = await axios.post('http://localhost:8080/api/rates', ratingData);
+            console.log(response.data);
+            // Alert the user
+            alert('Rating posted successfully');
+            // Call fetchRatee to update the data
+            fetchRatee();
         } catch (error) {
-          console.error('Error submitting rating:', error);
+            console.error('Error submitting rating:', error);
+            // You can also alert the user about the error
         }
     };
 
@@ -98,7 +106,7 @@ function RateePage() {
                 <h2>{ratee.Name}</h2>
                 <p><strong>Country:</strong> {ratee.Country}</p>
                 <p><strong>Discipline:</strong> {ratee.Discipline}</p>
-                <p><strong>Rating:</strong> {ratee.Rating}</p>
+                <p><strong>Rating:</strong> {ratee.Rating.toFixed(1)}</p>
                 <p><strong>Type:</strong> {ratee.Type}</p>
             </section>
             <section className='UserInteraction'>
