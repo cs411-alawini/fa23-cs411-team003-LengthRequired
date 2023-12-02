@@ -7,12 +7,14 @@ import UserProfile from '../Components/UserProfile';
 import InputSubmit from "../Components/InputSubmit";
 import RadialSelector from '../Components/RadialSelector';
 import RateeCard from '../Components/RateeCard';
+import Dropdown from '../Components/Dropdown';
+import '../StyleSheets/Home.css';
 
 
 
 function HomePage() {
     const tables = ['Athlete', 'Coach', 'Team'];
-    const countries = ['All','Japan','China'];
+    const countries = ['Japan','China'];
     const orderByAttributes = ['Country', 'Name', 'Discipline'];
 
     const [country, setCountry] = useState('');
@@ -26,6 +28,8 @@ function HomePage() {
     //     { Name: 'Zhang The Third', Country: 'Korea', Discipline: 'Tennis', RateeId: 3}
     // ]);
     const [searchResults, setSearchResults] = useState([]);
+    // is username is null, redirect to login page
+    useAuthRedirect();
 
     // whenever table or searchTerm changes, submit the search
     React.useEffect(() => {
@@ -104,7 +108,7 @@ function HomePage() {
     
 
     return (
-        <div>
+        <div className='homeDiv'>
             <h1>Home Page</h1>
             <UserProfile />
             <InputSubmit onSubmit={setName} />
@@ -122,7 +126,7 @@ function HomePage() {
             </div>
             <div className='SelectorDiv'>
                 <p>Country:</p>
-                <RadialSelector options={countries} onOptionSelected={setCountry} />
+                <Dropdown options={countries} onOptionSelected={setCountry} />
             </div>
             <div>
                 <h1>Search Results</h1>
