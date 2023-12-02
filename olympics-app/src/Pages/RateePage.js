@@ -64,10 +64,11 @@ function RateePage() {
         try {
             const response = await axios.post('http://localhost:8080/api/comment', commentData);
             console.log(response.data);
-            // Update local state or perform other actions as needed
-          } catch (error) {
+            // Call fetchRatee to update the data
+            fetchRatee();
+        } catch (error) {
             console.error('Error submitting comment:', error);
-          }
+        }
     };
 
     const handleRating = async (rating) => {
@@ -81,7 +82,8 @@ function RateePage() {
           console.log(ratingData.rating_value);
           const response = await axios.post('http://localhost:8080/api/rates', ratingData);
           console.log(response.data);
-          // Update local state or perform other actions as needed
+          // Call fetchRatee to update the data
+          fetchRatee();
         } catch (error) {
           console.error('Error submitting rating:', error);
         }

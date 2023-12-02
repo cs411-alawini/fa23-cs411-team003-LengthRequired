@@ -14,7 +14,7 @@ import '../StyleSheets/Home.css';
 
 function HomePage() {
     const tables = ['Athlete', 'Coach', 'Team'];
-    const countries = ['Japan','China'];
+    const countries = ['All','Japan','China'];
     const orderByAttributes = ['Country', 'Name', 'Discipline'];
 
     const [country, setCountry] = useState('');
@@ -37,11 +37,21 @@ function HomePage() {
         fetchSearchResults();
     }, [table, name, country, order, orderBy]);
 
+    // reset function
+    const reset = () => {
+        setCountry('');
+        setTable(tables[0]);
+        setName('');
+        setOrder('');
+        setOrderBy('');
+    };
+
     const fetchSearchResults = async () => {
         const baseUrl = 'http://localhost:8080/api/filter';
         const queryOrderBy = orderBy || ''; // Default to empty string if orderBy is falsy
         const queryOrder = order || '';
-        const queryCountry = country || '';
+        // country is not null or all
+        const queryCountry = country && country !== 'All' ? country : '';
         const queryName = name || '';
     
         // Create an object to hold the parameters
@@ -112,6 +122,9 @@ function HomePage() {
             <h1>Home Page</h1>
             <UserProfile />
             <InputSubmit onSubmit={setName} />
+            <div className='SelectorDiv'>
+                <button onClick={reset}>Reset All</button>
+            </div>
             <div className='SelectorDiv'>
                 <p>Order Results:</p>
                 <RadialSelector options={['ASC', 'DESC']} onOptionSelected={setOrder} />
