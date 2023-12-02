@@ -69,33 +69,12 @@ function HomePage() {
         }
     
         if (queryCountry) {
-            queryParams.Country = queryCountry;
+            queryParams.country = queryCountry;
         }
     
         if (queryName) {
-            queryParams.Name = queryName;
+            queryParams.name = queryName;
         }
-    
-        // Add the filters parameter only if filters are provided
-        // const filters = {}
-        // if (queryCountry || queryName) {
-        //     if (queryCountry) {
-        //         filters.Country = queryCountry
-        //     }
-
-        //     if (queryName) {
-        //         filters.Name = queryName
-        //     }
-            
-        //     const filtersString = Object.keys(filters)
-        //         .map(key => `${key}:${filters[key]}`)
-        //         .join(',');
-
-        //     // Add the filters parameter to queryParams
-        //     if (filtersString) {
-        //         queryParams.filters = encodeURIComponent(`{${filtersString}}`);
-        //     }
-        // }
     
         // Convert the object to a URL-encoded query string
         const queryString = new URLSearchParams(queryParams).toString();
