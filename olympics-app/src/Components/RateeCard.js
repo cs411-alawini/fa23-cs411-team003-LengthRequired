@@ -10,7 +10,9 @@ function RateeCard({ RateeId, Name, Country, Discipline }) {
 
     return (
         <div className='AthleteCard'>
-            <h2 onClick={navigateToRateePage}>{Name}</h2>
+            <h2>
+                <span onClick={navigateToRateePage}>{Name}</span>
+            </h2>
             <p>{RateeId}</p>
             <p>{Country}</p>
             <p>{Discipline}</p>

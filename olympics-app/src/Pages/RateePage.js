@@ -6,6 +6,7 @@ import InputSubmit from "../Components/InputSubmit";
 import RadialSelector from '../Components/RadialSelector';
 import RateeCard from '../Components/RateeCard';
 import useAuthRedirect from "../Hooks/useAuthRedirect";
+import '../StyleSheets/Ratee.css';
 
 function RateePage() {
     const ratingLvl = [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
@@ -26,6 +27,8 @@ function RateePage() {
         {CommentId: 1, Content: 'ji', PostBy: '223@123', Target: 3, Time: 'Sat, 28 Dec 2023 18:19:54 GMT'},
     ]);
     const [rating, setRating] = useState(2);
+
+    useAuthRedirect();
     
     React.useEffect(() => {
         fetchRatee();
@@ -85,7 +88,7 @@ function RateePage() {
     };
 
     return (
-        <div>
+        <div className='rateeDiv'>
             {/* button, go back to homepage */}
             <button onClick={() => navigate('/')}>Back to Home</button>
             <header>
@@ -102,7 +105,7 @@ function RateePage() {
                 <h2>Rate This Participant</h2>
                 <RadialSelector options={ratingLvl} onOptionSelected={handleRating} />
                 <h2>Leave Your Comment</h2>
-                <InputSubmit onSearchSubmited={handleCommentSubmit}/>
+                <InputSubmit onSubmit={handleCommentSubmit}/>
             </section>
             <section>
                 <h2>Reviews</h2>
