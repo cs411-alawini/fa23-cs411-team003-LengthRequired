@@ -11,7 +11,7 @@ import RateeCard from '../Components/RateeCard';
 
 
 function HomePage() {
-    const tables = ['athlete', 'coach', 'team'];
+    const tables = ['Athlete', 'Coach', 'Team'];
     const countries = ['All','Japan','China'];
     const orderByAttributes = ['Country', 'Name', 'Discipline'];
 
@@ -33,13 +33,22 @@ function HomePage() {
     }, [table, name, country, order, orderBy]);
 
     const fetchSearchResults = async () => {
-        const baseUrl = 'localhost:8080/api/filter';
+        const baseUrl = 'http://localhost:8080/api/filter';
         const queryOrderBy = orderBy;
         const queryOrder = order === 'Ascending' ? 'asc' : 'desc';
         const queryCountry = country === 'All' ? '' : country;
         const queryName = name;
-        const filters = { Country: queryCountry, Name: queryName };
-        const filtersJson = JSON.stringify(filters);
+        // if queryCOuntry is not empty, add to filters
+        // if queryName is not empty, add to filters
+        const filters = {};
+        if (queryCountry) {
+            filters['Country'] = queryCountry;
+        }
+        if (queryName) {
+            filters['Name'] = queryName;
+        }
+        // if filters is non empty, convert to json
+        const filtersJson = Object.keys(filters).length === 0 ? '' : JSON.stringify(filters);
 
         // Construct the full URL
         const url = `${baseUrl}?table=${table}&order_by=${queryOrderBy}&order=${queryOrder}&filters=${filtersJson}`;
