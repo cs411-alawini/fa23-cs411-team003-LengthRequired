@@ -10,7 +10,9 @@ const Dropdown = ({ options, onOptionSelected }) => {
   const handleSelect = (option) => {
     setSelectedOption(option);
     setShowDropdown(false);
-    onOptionSelected(option);
+    if (onOptionSelected) {
+        onOptionSelected(option);
+    }
   };
 
   return (

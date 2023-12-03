@@ -1,10 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { UserContext } from '../Components/UserProvider';
 import { useNavigate, useParams } from 'react-router-dom';
 import InputSubmit from "../Components/InputSubmit";
 import RadialSelector from '../Components/RadialSelector';
 import RateeCard from '../Components/RateeCard';
+import CommentCard from '../Components/CommentCard'; // Import the new component
 import useAuthRedirect from "../Hooks/useAuthRedirect";
 import '../StyleSheets/Ratee.css';
 
@@ -23,7 +24,7 @@ function RateePage() {
         Type: 'Coach'
     });
     const [reviews, setReviews] = useState([
-        {CommentId: 0, Content: 'cai', PostBy: '123@123', Target: 3, Time: 'Sat, 33 Nov 2023 18:16:52 GMT'},
+        {CommentId: 0, Content: 'cai', PostBy: '123@123', Target: 3, Time: 'Sat, 30 Nov 2023 18:16:52 GMT'},
         {CommentId: 1, Content: 'ji', PostBy: '223@123', Target: 3, Time: 'Sat, 28 Dec 2023 18:19:54 GMT'},
     ]);
     const [rating, setRating] = useState(2);
@@ -45,7 +46,7 @@ function RateePage() {
             setRatee({
                 Country: data.Country,
                 Discipline: data.Discipline,
-                Name: data.Name,
+                Name: data.Name || `${data.Country} ${data.Discipline} Team`,
                 Rating: data.Rating,
                 Type: data.Type
             });
@@ -118,16 +119,8 @@ function RateePage() {
             <section>
                 <h2>Reviews</h2>
                 <ul>
-                    {reviews.map((review, index) => (
-                        <li key={index}>
-                            <article>
-                                <p>{review.Content}</p>
-                                <footer>
-                                    <p>Posted by: {review.PostBy}</p>
-                                    <time dateTime={review.Time}>{new Date(review.Time).toLocaleString()}</time>
-                                </footer>
-                            </article>
-                        </li>
+                    {reviews.map((review) => (
+                        <CommentCard key={review.CommentId} review={review}/>
                     ))}
                 </ul>
             </section>
