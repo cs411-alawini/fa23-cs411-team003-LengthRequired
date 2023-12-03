@@ -9,10 +9,12 @@ function RateeCard({ RateeId, Name, Country, Discipline }) {
         navigate(`/ratee/${RateeId}`);
     };
 
+    const displayName = Name || `${Country} ${Discipline} Team`;
+
     return (
         <div className='AthleteCard'>
             <h2>
-                <span onClick={navigateToRateePage}>{Name}</span>
+                <span onClick={navigateToRateePage}>{displayName}</span>
             </h2>
             <p>Country: {Country}</p>
             <p>Discipline: {Discipline}</p>

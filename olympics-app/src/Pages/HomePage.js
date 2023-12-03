@@ -98,29 +98,30 @@ function HomePage() {
 
     return (
         <div className='homeDiv'>
-            <h1>Home Page</h1>
-            <UserProfile />
-            <InputSubmit onSubmit={setName} />
-            <div className='SelectorDiv'>
-                <button onClick={reset}>Reset All</button>
+            <div className='homeControlDiv'>
+                <UserProfile />
+                <InputSubmit onSubmit={setName} />
+                <div className='SelectorDiv'>
+                    <button onClick={reset}>Reset All</button>
+                </div>
+                <div className='SelectorDiv'>
+                    <p>Order Results:</p>
+                    <RadialSelector options={['ASC', 'DESC']} onOptionSelected={setOrder} />
+                </div>
+                <div className='SelectorDiv'>
+                    <p>Order By:</p>
+                    <RadialSelector options={orderByAttributes} onOptionSelected={setOrderBy} />
+                </div>
+                <div className='SelectorDiv'>
+                    <p>Table:</p>
+                    <RadialSelector options={tables} onOptionSelected={setTable} />
+                </div>
+                <div className='SelectorDiv'>
+                    <p>Country:</p>
+                    <Dropdown options={countries} onOptionSelected={setCountry} />
+                </div>
             </div>
-            <div className='SelectorDiv'>
-                <p>Order Results:</p>
-                <RadialSelector options={['ASC', 'DESC']} onOptionSelected={setOrder} />
-            </div>
-            <div className='SelectorDiv'>
-                <p>Order By:</p>
-                <RadialSelector options={orderByAttributes} onOptionSelected={setOrderBy} />
-            </div>
-            <div className='SelectorDiv'>
-                <p>Table:</p>
-                <RadialSelector options={tables} onOptionSelected={setTable} />
-            </div>
-            <div className='SelectorDiv'>
-                <p>Country:</p>
-                <Dropdown options={countries} onOptionSelected={setCountry} />
-            </div>
-            <div>
+            <div className='homeDisplayDiv'>
                 <h1>Search Results</h1>
                 <div className='SearchResults'>
                     {searchResults.map((result) => (
