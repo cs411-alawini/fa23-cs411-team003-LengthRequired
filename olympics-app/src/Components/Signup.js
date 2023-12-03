@@ -47,7 +47,7 @@ function Signup() {
         password
       });
       console.log('Server Response:', response.data);
-      if (response.data.message === 'User registered successfully.') {
+      if (response.status === 200)  {
         setUser({ username, email }); // Update the user context
         // redirect to home page
         navigate('/');

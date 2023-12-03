@@ -68,14 +68,16 @@ def register():
                 conn.commit()
                 if cursor.rowcount > 0:
                     response = {"message": "User registered successfully."}
+                    status_code = 200
                 else:
                     response = {"message": "User registration failed."}
+                    status_code = 500  # or any appropriate error status code
 
-            return jsonify(response)
+            return jsonify(response), status_code
 
     except Exception as e:
         response = {"error": str(e)}
-        return jsonify(response)
+        return jsonify(response), 500  # Internal Server Error
 
     finally:
         cursor.close()
@@ -117,6 +119,7 @@ def login():
                 # If the password is correct, include the username in the response
                 username = user[2]  # Assuming the username is stored in the third column
                 response = {"message": "Login successful", "username": username}
+                
             else:
                 response = {"message": "Invalid email or password"}
 
@@ -280,28 +283,29 @@ def post_comment():
         if conn: conn.rollback()
         return jsonify(response)
 
-# {"CommentId":1}
-@app.route('/api/comment', methods=['DELETE'])
-def delete_comment():
+
+@app.route('/api/comment/<int:comment_id>', methods=['DELETE'])
+def delete_comment(comment_id):
     try:
         conn = mysql.connector.connect(**db_config)
 
-        data = request.get_json()
-        comment_id = data["CommentId"]
-
         conn.start_transaction()
         cursor = conn.cursor()
-        query = f"DELETE FROM Comment WHERE CommentID = {comment_id}"
-        cursor.execute(query)
+        query = "DELETE FROM Comment WHERE CommentID = %s"
+        cursor.execute(query, (comment_id,))
         res = cursor.rowcount
         conn.commit()
 
-        return jsonify({"message": "Comment deleted"}) if res else jsonify({"message": "Invalid comment ID"})
+        if res:
+            return jsonify({"message": "Comment deleted"}), 200
+        else:
+            return jsonify({"message": "Invalid comment ID"}), 500
 
     except Exception as e:
         response = {"error": str(e)}
-        if conn: conn.rollback()
-        return jsonify(response)
+        if conn:
+            conn.rollback()
+        return jsonify(response), 500
 
 
 # {"rate_by":"test","rating_value":"3","target":3}

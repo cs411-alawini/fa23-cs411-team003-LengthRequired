@@ -74,6 +74,28 @@ function RateePage() {
             // You can also alert the user about the error
         }
     };
+
+    const handleDeleteComment = async (commentId) => {
+        try {
+            // Implement the logic to delete the comment
+            console.log('Deleting comment with id:', commentId);
+    
+            // Send a DELETE request to the API with the commentId
+            const response = await axios.delete(`http://localhost:8080/api/comment/${commentId}`);
+    
+            // Assuming the API returns a success status (e.g., 200 OK),
+            // you can then update the reviews list or perform any other necessary actions.
+            if (response.status === 200)  {
+                alert('Comment deleted successfully');
+                fetchRatee();
+            }
+            
+    
+        } catch (error) {
+            // Handle errors here, such as network issues or server errors
+            console.error('Error deleting comment:', error.message);
+        }
+    };
     
     const handleRating = async (rating) => {
         const ratingData = {
@@ -120,7 +142,7 @@ function RateePage() {
                 <h2>Reviews</h2>
                 <ul>
                     {reviews.map((review) => (
-                        <CommentCard key={review.CommentId} review={review}/>
+                        <CommentCard key={review.CommentId} review={review} onClick={handleDeleteComment}/>
                     ))}
                 </ul>
             </section>
