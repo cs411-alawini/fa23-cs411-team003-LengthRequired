@@ -1,7 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import axios from 'axios';
 import { UserContext } from '../Components/UserProvider';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 import useAuthRedirect from "../Hooks/useAuthRedirect";
 import UserProfile from '../Components/UserProfile';
 import InputSubmit from "../Components/InputSubmit";
@@ -36,6 +37,9 @@ function HomePage() {
         console.log('Search submitted:', name, 'in', table);
         fetchSearchResults();
     }, [table, name, country, order, orderBy]);
+
+
+
 
     // reset function
     const reset = () => {
@@ -98,7 +102,9 @@ function HomePage() {
 
     return (
         <div className='homeDiv'>
+            
             <div className='homeControlDiv'>
+                
                 <UserProfile />
                 <InputSubmit onSubmit={setName} />
                 <div className='SelectorDiv'>
@@ -120,8 +126,20 @@ function HomePage() {
                     <p>Country:</p>
                     <Dropdown options={countries} onOptionSelected={setCountry} />
                 </div>
+                
             </div>
             <div className='homeDisplayDiv'>
+                <div className='SelectorDivRow'>
+                <Link to="/medal">
+                    <button style={{ marginRight: '10px' }}>Go to Medal Page</button>
+                </Link>
+                <Link to="/playerRank">
+                    <button style={{ marginRight: '10px' }}>Go to Player Rank Page</button>
+                </Link>
+                <Link to="/funFact">
+                    <button style={{ marginRight: '10px' }}>Go to Fun Fact Page</button>
+                </Link>
+                </div>
                 <h1>Search Results</h1>
                 <div className='SearchResults'>
                     {searchResults.map((result) => (
@@ -133,6 +151,7 @@ function HomePage() {
                         />
                     ))}
                 </div>
+                
             </div>
         </div>
     );
