@@ -111,6 +111,7 @@ def login():
 
         if not user:
             response = {"message": "Invalid email or password"}
+            return jsonify(response), 401
         else:
             # Check if the password is correct
             stored_password = user[1]  # Assuming the password is stored in the second column
@@ -118,15 +119,15 @@ def login():
                 # If the password is correct, include the username in the response
                 username = user[2]  # Assuming the username is stored in the third column
                 response = {"message": "Login successful", "username": username}
-                
             else:
                 response = {"message": "Invalid email or password"}
+                return jsonify(response), 401
+            return jsonify(response)
 
-        return jsonify(response)
 
     except Exception as e:
         response = {"error": str(e)}
-        return jsonify(response)
+        return jsonify(response), 500
 
     finally:
         cursor.close()
@@ -163,7 +164,7 @@ def query_table():
             filters["Name"] = name
 
         if not table_name:
-            return {"error": "table not specified"}
+            return {"error": "table not specified"}, 400
 
         query = f"SELECT * FROM {table_name}"
 
@@ -180,7 +181,7 @@ def query_table():
 
         return jsonify({'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]})
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 
 # /ratee?rateeid=3
@@ -226,14 +227,14 @@ def get_ratee_info():
         conn = mysql.connector.connect(**db_config)
 
         rateeid = request.args.get('rateeid')
-        if not rateeid: return {"error": "rateeid not specified"}
+        if not rateeid: return {"error": "rateeid not specified"},400
 
         cursor = conn.cursor()
         query = f"SELECT * FROM Ratee WHERE Rateeid = '{rateeid}' LIMIT 1"
         cursor.execute(query)
 
         ratee_info = cursor.fetchall()[0]
-        if not ratee_info: return {"error": "ratee not found"}
+        if not ratee_info: return {"error": "ratee not found"},404
         type = ratee_info[1]
         rating = ratee_info[2] / ratee_info[3] if ratee_info[3] else 0
         rating_info = {"Type": type, "Rating": rating}
@@ -249,7 +250,7 @@ def get_ratee_info():
         return {'data': {**rating_info, **other_info, **comments}}
 
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)},500
     # Get ratee information
 
 
@@ -275,12 +276,12 @@ def post_comment():
         conn.commit()
 
         return jsonify({"message": "Comment posted", "CommentId": comment_id}) if res else jsonify(
-            {"message": "Invalid comment"})
+            {"message": "Invalid comment"}),400
 
     except Exception as e:
         response = {"error": str(e)}
         if conn: conn.rollback()
-        return jsonify(response)
+        return jsonify(response),500
 
 
 @app.route('/api/comment/<int:comment_id>', methods=['DELETE'])
@@ -298,7 +299,7 @@ def delete_comment(comment_id):
         if res:
             return jsonify({"message": "Comment deleted"}), 200
         else:
-            return jsonify({"message": "Invalid comment ID"}), 500
+            return jsonify({"message": "Invalid comment ID"}), 404
 
     except Exception as e:
         response = {"error": str(e)}
@@ -326,12 +327,12 @@ def post_rate():
         res = cursor.rowcount
         conn.commit()
 
-        return jsonify({"message": "Rating posted"}) if res else jsonify({"message": "Invalid rating"})
+        return jsonify({"message": "Rating posted"}) if res else jsonify({"message": "Invalid rating"}),400
 
     except Exception as e:
         response = {"error": str(e)}
         if conn: conn.rollback()
-        return jsonify(response)
+        return jsonify(response),500
 
 
 # /discipline?discipline=Tennis
@@ -354,15 +355,16 @@ def get_athlete_by_discipline():
         conn = mysql.connector.connect(**db_config)
 
         discipline = request.args.get('discipline')
-        if not discipline: return {"error": "discipline not specified"}
+        if not discipline: return {"error": "discipline not specified"},400
 
         cursor = conn.cursor()
         query = f"SELECT * FROM Athlete WHERE Discipline = '{discipline}'"
         cursor.execute(query)
+
         return {'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]}
 
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)},500
 
 
 # /country?country=Poland
@@ -386,7 +388,7 @@ def get_athlete_by_country():
         conn = mysql.connector.connect(**db_config)
 
         country = request.args.get('country')
-        if not country: return {"error": "country not specified"}
+        if not country: return {"error": "country not specified"},400
 
         cursor = conn.cursor()
         query = f"SELECT * FROM Athlete WHERE Country = '{country}'"
@@ -394,7 +396,7 @@ def get_athlete_by_country():
         return {'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]}
 
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)},500
 
 
 @app.route('/api/medal', methods=['GET'])
@@ -429,7 +431,7 @@ def get_medal():
         return {'data': [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]}
 
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)},500
 
 
 # Retrieve the result from the stored procedure
@@ -507,7 +509,7 @@ def player_rank():
         return {'data': results}
 
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)},500
 
 
 # just call it
@@ -564,7 +566,7 @@ def fun_facts():
         res2 = [dict(zip(cursor.column_names, row)) for row in cursor.fetchall()]
         return {'data': [res1, res2]}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)},500
 
 
 if __name__ == "__main__":
