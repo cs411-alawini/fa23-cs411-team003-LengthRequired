@@ -10,26 +10,22 @@ import RadialSelector from '../Components/RadialSelector';
 import RateeCard from '../Components/RateeCard';
 import Dropdown from '../Components/Dropdown';
 import '../StyleSheets/Home.css';
-
+import countryList from '../Components/countryList';
 
 
 function HomePage() {
     const tables = ['Athlete', 'Coach', 'Team'];
-    const countries = ['All','Japan','China'];
+    const countries = countryList
     const orderByAttributes = ['Country', 'Name', 'Discipline'];
-
+    console.log(countries)
     const [country, setCountry] = useState('');
     const [table, setTable] = useState(tables[0]);
     const [name, setName] = useState('');
     const [order, setOrder] = useState('');
     const [orderBy, setOrderBy] = useState('');
-    // const [searchResults, setSearchResults] = useState([
-    //     { Name: 'Hammer Wang', Country: 'China', Discipline: 'Basketball', RateeId: 1},
-    //     { Name: 'Husky Li', Country: 'Japan', Discipline: 'Football', RateeId: 2},
-    //     { Name: 'Zhang The Third', Country: 'Korea', Discipline: 'Tennis', RateeId: 3}
-    // ]);
+
     const [searchResults, setSearchResults] = useState([]);
-    // is username is null, redirect to login page
+    // if username is null, redirect to login page
     useAuthRedirect();
 
     // whenever table or searchTerm changes, submit the search
