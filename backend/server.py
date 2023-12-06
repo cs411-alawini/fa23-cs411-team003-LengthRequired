@@ -170,7 +170,7 @@ def query_table():
 
         if filters:
             # filters = dict(item.split(":") for item in filters[1:-1].split(","))
-            filter_conditions = " AND ".join([f"{key}= '{value}'" for key, value in filters.items()])
+            filter_conditions = " AND ".join([f"{key}= \"{value}\"" for key, value in filters.items()])
             query += f" WHERE {filter_conditions}"
 
         if order_by and order:
