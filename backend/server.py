@@ -22,7 +22,7 @@ db_config = {
     "user": USER,
     "password": PASSWORD,
     "host": HOST,
-    "database": "test",
+    "database": "db",
 }
 
 
@@ -274,9 +274,10 @@ def post_comment():
         res = cursor.rowcount
         comment_id = cursor.lastrowid
         conn.commit()
-
-        return jsonify({"message": "Comment posted", "CommentId": comment_id}) if res else jsonify(
-            {"message": "Invalid comment"}),400
+        if res:
+            return jsonify({"message": "Comment posted", "CommentId": comment_id}),200
+        else:
+            return jsonify({"message": "Invalid comment"}),400
 
     except Exception as e:
         response = {"error": str(e)}
@@ -321,13 +322,27 @@ def post_rate():
 
         conn.start_transaction()
         cursor = conn.cursor()
-        query = (f"INSERT INTO Rates (RateBy, Target, RatingValue, Time) VALUES ('{rate_by}', "
-                 f"{target}, {rating_value}, '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}')")
+
+        check_query = f"SELECT * FROM Rates WHERE RateBy = '{rate_by}' AND Target = {target}"
+        cursor.execute(check_query)
+        res = cursor.fetchall()
+
+        if res:
+            query = (f"UPDATE Rates SET RatingValue = {rating_value}, Time = '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}' "
+                     f"WHERE RateBy = '{rate_by}' AND Target = {target}")
+            message = "Rating updated"
+        else:
+            query = (f"INSERT INTO Rates (RateBy, Target, RatingValue, Time) VALUES ('{rate_by}', "
+                     f"{target}, {rating_value}, '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}')")
+            message = "Rating posted"
+
         cursor.execute(query)
         res = cursor.rowcount
         conn.commit()
-
-        return jsonify({"message": "Rating posted"}) if res else jsonify({"message": "Invalid rating"}),400
+        if res:
+            return jsonify({"message": message}),200
+        else:
+            return jsonify({"message": "Invalid rating"}),400
 
     except Exception as e:
         response = {"error": str(e)}

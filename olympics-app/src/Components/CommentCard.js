@@ -15,6 +15,7 @@ function CommentCard({ review, onClick }) {
                     <p>Posted by: {review.PostBy}</p>
                     <time dateTime={review.Time}>{new Date(review.Time).toLocaleString()}</time>
                     {isCurrentUser && <button onClick={() => onClick(review.CommentId)}>Delete</button>}
+                    
                 </footer>
             </article>
         </li>

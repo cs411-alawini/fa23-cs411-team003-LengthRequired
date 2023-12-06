@@ -58,14 +58,14 @@ const FunFactPage = () => {
         <thead>
           <tr>
             <th style={cellStyle}>Country</th>
-            <th style={cellStyle}>Athlete_to_Medal_Ratio</th>
+            <th style={cellStyle}>Medal_to_Athlete_Ratio</th>
           </tr>
         </thead>
         <tbody>
           {funFactData[1]?.map((fact, index) => (
             <tr key={index}>
               <td style={cellStyle}>{fact.Country}</td>
-              <td style={cellStyle}>{fact.Athlete_to_Medal_Ratio}</td>
+              <td style={cellStyle}>{fact.Medal_to_Athlete_Ratio}</td>
             </tr>
           ))}
         </tbody>
