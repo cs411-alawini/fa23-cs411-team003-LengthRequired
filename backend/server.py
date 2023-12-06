@@ -488,7 +488,7 @@ BEGIN
         END LOOP cloop;
     CLOSE cur;
 
-	SELECT * FROM FinalTable ORDER BY PlayerRank;
+	SELECT * FROM FinalTable ORDER BY Score DESC;
 END//
 DELIMITER ;
 
