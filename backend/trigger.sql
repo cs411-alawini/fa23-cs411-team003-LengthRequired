@@ -1,4 +1,23 @@
 DELIMITER //
+CREATE TRIGGER RatingUpdateTrig
+	AFTER UPDATE ON Rates
+		FOR EACH ROW
+	BEGIN
+		SET @sum = (SELECT SumofRating 
+			FROM Ratee
+			WHERE RateeId = new.Target);
+		SET @num  = (SELECT NumofRating 
+			FROM Ratee
+			WHERE RateeId = new.Target);
+		IF @sum IS NOT NULL THEN
+			UPDATE Ratee
+			SET SumofRating = (@sum-old.RatingValue+new.RatingValue)
+			WHERE RateeId = new.Target;
+		END IF;
+	END;//
+DELIMITER ;
+
+DELIMITER //
 CREATE TRIGGER RatingTrig
 	AFTER INSERT ON Rates
 		FOR EACH ROW
