@@ -327,16 +327,18 @@ def post_rate():
         if cursor.rowcount:
             query = (f"UPDATE Rates SET RatingValue = {rating_value}, Time = '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}' "
                      f"WHERE RateBy = '{rate_by}' AND Target = {target}")
+            message = "Rating updated"
         else:
             query = (f"INSERT INTO Rates (RateBy, Target, RatingValue, Time) VALUES ('{rate_by}', "
                      f"{target}, {rating_value}, '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}')")
+            message = "Rating posted"
 
         cursor.fetchall()
         cursor.execute(query)
         res = cursor.rowcount
         conn.commit()
 
-        return jsonify({"message": "Rating posted"}) if res else jsonify({"message": "Invalid rating"}),400
+        return jsonify({"message": message}) if res else jsonify({"message": "Invalid rating"}),400
 
     except Exception as e:
         response = {"error": str(e)}
