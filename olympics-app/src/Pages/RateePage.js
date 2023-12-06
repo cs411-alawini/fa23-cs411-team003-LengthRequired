@@ -10,7 +10,7 @@ import useAuthRedirect from "../Hooks/useAuthRedirect";
 import '../StyleSheets/Ratee.css';
 
 function RateePage() {
-    const ratingLvl = [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+    const ratingLvl = [ '0', '1', '2', '3', '4', '5'];
     const { user } = useContext(UserContext);
 
 
@@ -99,17 +99,19 @@ function RateePage() {
     
     const handleRating = async (rating) => {
         const ratingData = {
-            rate_by: user.username,
+            rate_by: user.email,
             rating_value: rating,
             target: id
         };
       
         try {
             console.log(ratingData.rating_value);
+            console.log(ratingData);
             const response = await axios.post('http://localhost:8080/api/rates', ratingData);
             console.log(response.data);
             // Alert the user
-            alert('Rating posted successfully');
+            // alert('Rating posted successfully');
+            alert(response.data.message)
             // Call fetchRatee to update the data
             fetchRatee();
         } catch (error) {
