@@ -22,7 +22,7 @@ db_config = {
     "user": USER,
     "password": PASSWORD,
     "host": HOST,
-    "database": "test",
+    "database": "db",
 }
 
 
@@ -275,7 +275,7 @@ def post_comment():
         comment_id = cursor.lastrowid
         conn.commit()
 
-        return jsonify({"message": "Comment posted", "CommentId": comment_id}) if res else jsonify(
+        return jsonify({"message": "Comment posted", "CommentId": comment_id}),200 if res else jsonify(
             {"message": "Invalid comment"}),400
 
     except Exception as e:
@@ -339,7 +339,7 @@ def post_rate():
         res = cursor.rowcount
         conn.commit()
 
-        return jsonify({"message": message}) if res else jsonify({"message": "Invalid rating"}),400
+        return jsonify({"message": message}),200 if res else jsonify({"message": "Invalid rating"}),400
 
     except Exception as e:
         response = {"error": str(e)}
