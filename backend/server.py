@@ -321,8 +321,17 @@ def post_rate():
 
         conn.start_transaction()
         cursor = conn.cursor()
-        query = (f"INSERT INTO Rates (RateBy, Target, RatingValue, Time) VALUES ('{rate_by}', "
-                 f"{target}, {rating_value}, '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}')")
+
+        check_query = f"SELECT * FROM Rates WHERE RateBy = '{rate_by}' AND Target = {target}"
+        cursor.execute(check_query)
+        if cursor.rowcount:
+            query = (f"UPDATE Rates SET RatingValue = {rating_value}, Time = '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}' "
+                     f"WHERE RateBy = '{rate_by}' AND Target = {target}")
+        else:
+            query = (f"INSERT INTO Rates (RateBy, Target, RatingValue, Time) VALUES ('{rate_by}', "
+                     f"{target}, {rating_value}, '{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}')")
+
+        cursor.fetchall()
         cursor.execute(query)
         res = cursor.rowcount
         conn.commit()
