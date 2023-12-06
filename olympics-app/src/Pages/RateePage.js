@@ -16,17 +16,8 @@ function RateePage() {
 
     let { id } = useParams();
     const navigate = useNavigate();
-    const [ratee, setRatee] = useState({
-        Country: 'China',
-        Discipline: 'Basketball',
-        Name: 'Yufeng Liu',
-        Rating: 0,
-        Type: 'Coach'
-    });
-    const [reviews, setReviews] = useState([
-        {CommentId: 0, Content: 'cai', PostBy: '123@123', Target: 3, Time: 'Sat, 30 Nov 2023 18:16:52 GMT'},
-        {CommentId: 1, Content: 'ji', PostBy: '223@123', Target: 3, Time: 'Sat, 28 Dec 2023 18:19:54 GMT'},
-    ]);
+    const [ratee, setRatee] = useState({});
+    const [reviews, setReviews] = useState([]);
     const [rating, setRating] = useState(2);
 
     useAuthRedirect();
