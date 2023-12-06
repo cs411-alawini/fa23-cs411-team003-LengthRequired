@@ -274,9 +274,10 @@ def post_comment():
         res = cursor.rowcount
         comment_id = cursor.lastrowid
         conn.commit()
-
-        return jsonify({"message": "Comment posted", "CommentId": comment_id}),200 if res else jsonify(
-            {"message": "Invalid comment"}),400
+        if res:
+            return jsonify({"message": "Comment posted", "CommentId": comment_id}),200
+        else:
+            return jsonify({"message": "Invalid comment"}),400
 
     except Exception as e:
         response = {"error": str(e)}
@@ -338,8 +339,10 @@ def post_rate():
         cursor.execute(query)
         res = cursor.rowcount
         conn.commit()
-
-        return jsonify({"message": message}),200 if res else jsonify({"message": "Invalid rating"}),400
+        if res:
+            return jsonify({"message": message}),200
+        else:
+            return jsonify({"message": "Invalid rating"}),400
 
     except Exception as e:
         response = {"error": str(e)}
