@@ -16,7 +16,13 @@ function RateePage() {
 
     let { id } = useParams();
     const navigate = useNavigate();
-    const [ratee, setRatee] = useState({});
+    const [ratee, setRatee] = useState({
+        Country: '',
+        Discipline: '',
+        Name: '',
+        Rating: 0,
+        Type: ''
+    });
     const [reviews, setReviews] = useState([]);
     const [rating, setRating] = useState(2);
 
