@@ -14,7 +14,11 @@ function CommentCard({ review, onClick }) {
                 <footer>
                     <p>Posted by: {review.PostBy}</p>
                     {/* <p>Posted by: {user.username}</p> */}
-                    <time dateTime={review.Time}>{new Date(review.Time).toLocaleString()}</time>
+                    {/* <time dateTime={review.Time}>{new Date(review.Time).toLocaleString()}</time> */}
+                    <time dateTime={review.Time}>
+                        {new Date(new Date(review.Time).setHours(new Date(review.Time).getHours() + 6)).toLocaleString('en-US', { timeZone: 'America/Chicago' })}
+                    </time>
+
                     {isCurrentUser && <button onClick={() => onClick(review.CommentId)}>Delete</button>}
                     
                 </footer>

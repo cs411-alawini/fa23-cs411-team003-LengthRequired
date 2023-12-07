@@ -33,7 +33,7 @@ function RateePage() {
     }, [id]); // Added id as a dependency
 
     const fetchRatee = async () => {
-        const baseUrl = 'http://localhost:8080/api/ratee'; // Ensure you have http://
+        const baseUrl = 'http://localhost:8080/api/ratee';
         const url = `${baseUrl}?rateeid=${id}`;
         console.log('Fetching ratee from:', url);
         try {
@@ -68,7 +68,6 @@ function RateePage() {
             fetchRatee();
         } catch (error) {
             console.error('Error submitting comment:', error);
-            // You can also alert the user about the error
         }
     };
 
@@ -80,8 +79,7 @@ function RateePage() {
             // Send a DELETE request to the API with the commentId
             const response = await axios.delete(`http://localhost:8080/api/comment/${commentId}`);
     
-            // Assuming the API returns a success status (e.g., 200 OK),
-            // you can then update the reviews list or perform any other necessary actions.
+
             if (response.status === 200)  {
                 alert('Comment deleted successfully');
                 fetchRatee();
@@ -113,7 +111,6 @@ function RateePage() {
             fetchRatee();
         } catch (error) {
             console.error('Error submitting rating:', error);
-            // You can also alert the user about the error
         }
     };
 
